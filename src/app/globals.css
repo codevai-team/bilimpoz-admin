@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0b0b0b;
+  --foreground: #ffffff;
+  --card-background: #151515;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Кастомные стили для админ панели */
+* {
+  box-sizing: border-box;
+}
+
+/* Стили для скроллбара */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #606060;
+}
+
+/* Кастомные стили для чекбоксов */
+input[type="checkbox"] {
+  accent-color: white;
+}
+
+input[type="checkbox"]:checked {
+  background-color: white;
+  border-color: white;
+}
+
+input[type="checkbox"]:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+/* Отключение системных подсказок браузера */
+[title] {
+  position: relative;
+}
+
+/* Полное отключение встроенных подсказок браузера */
+*[title]:hover::before {
+  content: '' !important;
+  display: none !important;
+}
+
+*[title]::after {
+  content: none !important;
+}
+
+/* Глобальные стили для кастомных подсказок */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Стили для подсказок через data-tooltip атрибут */
+[data-tooltip] {
+  position: relative;
+}
+
+/* Треугольный указатель для data-tooltip */
+[data-tooltip]:hover::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 12px;
+  margin-top: 0px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #404040;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  padding: 4px 8px;
+  background-color: #151515;
+  color: white;
+  font-size: 11px;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid #404040;
+}
+
