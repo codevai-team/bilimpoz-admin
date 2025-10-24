@@ -99,7 +99,7 @@ export default function LoginForm() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
               >
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                {showPassword ? <EyeIcon /> : <EyeOffIcon />}
               </button>
             </div>
           </Tooltip>

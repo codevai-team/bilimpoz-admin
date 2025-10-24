@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
-import Tooltip from '@/components/ui/Tooltip';
 import { TelegramIcon, ShieldCheckIcon, ArrowLeftIcon } from '@/components/ui/Icons';
 
 export default function TelegramVerificationForm() {
@@ -11,8 +10,7 @@ export default function TelegramVerificationForm() {
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [timeLeft, setTimeLeft] = useState(300); // 5 минут в секундах
+  const [timeLeft, setTimeLeft] = useState(20); // 5 минут в секундах
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Таймер обратного отсчета
@@ -37,7 +35,6 @@ export default function TelegramVerificationForm() {
     newCode[index] = value;
     setCode(newCode);
     setError('');
-    setSuccessMessage('');
 
     // Автоматический переход к следующему полю
     if (value && index < 5) {
@@ -102,11 +99,8 @@ export default function TelegramVerificationForm() {
 
   const handleResendCode = () => {
     console.log('Resending Telegram code...');
-    setTimeLeft(300); // Сброс таймера
+    setTimeLeft(20); // Сброс таймера
     setError('');
-    setSuccessMessage('Новый код отправлен в Telegram!');
-    // Убираем сообщение через 3 секунды
-    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   const handleBackToLogin = () => {
@@ -118,8 +112,8 @@ export default function TelegramVerificationForm() {
       {/* Заголовок */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mb-4">
-          <div className="bg-blue-500/20 p-3 rounded-full">
-            <TelegramIcon className="w-8 h-8 text-blue-400" />
+          <div className="bg-gray-500/20 p-3 rounded-full">
+            <TelegramIcon className="w-8 h-8 text-white" />
           </div>
         </div>
         <h2 className="text-2xl font-bold text-white mb-2">Подтверждение входа</h2>
@@ -140,52 +134,40 @@ export default function TelegramVerificationForm() {
         </div>
       )}
 
-      {successMessage && (
-        <div className="p-4 rounded-lg border border-green-500/30 bg-green-500/10">
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="text-green-400 text-sm font-medium">{successMessage}</span>
-          </div>
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         {/* Поля ввода кода */}
         <div>
           <label className="block text-sm font-medium text-white mb-4">
             Код подтверждения
           </label>
-          <div className="flex gap-3 justify-center">
-            {code.map((digit, index) => (
-              <Tooltip key={index} text={`Цифра ${index + 1}`}>
-                <input
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleInputChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  onPaste={handlePaste}
-                  className={`
-                    w-12 h-14 text-center text-xl font-bold
-                    text-white placeholder-gray-400
-                    rounded-xl border-2
-                    focus:outline-none focus:border-blue-400
-                    hover:border-gray-500
-                    transition-all duration-300 ease-in-out
-                    ${error ? 'border-red-400' : 'border-gray-600'}
-                    ${digit ? 'border-blue-500 bg-blue-500/10' : ''}
-                  `}
-                  style={{
-                    backgroundColor: digit ? undefined : '#0b0b0b'
-                  }}
-                />
-              </Tooltip>
-            ))}
-          </div>
+           <div className="flex gap-3 justify-center">
+             {code.map((digit, index) => (
+               <input
+                 key={index}
+                 ref={(el) => { inputRefs.current[index] = el; }}
+                 type="text"
+                 inputMode="numeric"
+                 maxLength={1}
+                 value={digit}
+                 onChange={(e) => handleInputChange(index, e.target.value)}
+                 onKeyDown={(e) => handleKeyDown(index, e)}
+                 onPaste={handlePaste}
+                 className={`
+                   w-12 h-14 text-center text-xl font-bold
+                   text-white placeholder-gray-400
+                   rounded-xl border-2
+                   focus:outline-none focus:border-white
+                   hover:border-gray-500
+                   transition-all duration-300 ease-in-out
+                   ${error ? 'border-red-400' : 'border-gray-600'}
+                   ${digit ? 'border-white bg-white/10' : ''}
+                 `}
+                 style={{
+                   backgroundColor: digit ? undefined : '#0b0b0b'
+                 }}
+               />
+             ))}
+           </div>
         </div>
 
         {/* Таймер и повторная отправка */}
@@ -198,34 +180,35 @@ export default function TelegramVerificationForm() {
             <button
               type="button"
               onClick={handleResendCode}
-              className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+              className="text-sm text-gray-400 hover:text-white transition-colors font-medium"
             >
-              Отправить код повторно
+              Отправить ещё
             </button>
           )}
         </div>
 
-        {/* Кнопки */}
-        <div className="space-y-3">
-          <Button
-            type="submit"
-            isLoading={isLoading}
-            className="w-full"
-            disabled={code.join('').length !== 6}
-          >
-            {isLoading ? 'Проверка кода...' : 'Подтвердить'}
-          </Button>
-          
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleBackToLogin}
-            className="w-full"
-          >
-            <ArrowLeftIcon className="w-4 h-4 mr-2" />
-            Вернуться к входу
-          </Button>
-        </div>
+         {/* Кнопки */}
+         <div className="space-y-4">
+           <Button
+             type="submit"
+             isLoading={isLoading}
+             className="w-full"
+             disabled={code.join('').length !== 6}
+           >
+             {isLoading ? 'Проверка кода...' : 'Подтвердить'}
+           </Button>
+           
+           <div className="text-center">
+             <button
+               type="button"
+               onClick={handleBackToLogin}
+               className="text-gray-400 hover:text-gray-300 transition-colors text-sm inline-flex items-center gap-2"
+             >
+               <ArrowLeftIcon className="w-4 h-4" />
+               Вернуться к входу
+             </button>
+           </div>
+         </div>
       </form>
     </div>
   );
