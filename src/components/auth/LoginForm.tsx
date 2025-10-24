@@ -1,28 +1,44 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Tooltip from '@/components/ui/Tooltip';
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from '@/components/ui/Icons';
 
 export default function LoginForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     login: '',
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
-    // Здесь будет логика аутентификации
+    // Тестовые данные для входа
+    const testCredentials = {
+      login: 'admin',
+      password: 'admin123'
+    };
+    
     console.log('Login attempt:', formData);
     
-    // Имитация запроса
+    // Имитация запроса с проверкой тестовых данных
     setTimeout(() => {
+      if (formData.login === testCredentials.login && formData.password === testCredentials.password) {
+        console.log('Login successful! Redirecting to Telegram verification...');
+        router.push('/verify-telegram');
+      } else {
+        console.log('Invalid credentials');
+        setError('Неверный логин или пароль');
+      }
       setIsLoading(false);
     }, 1000);
   };
@@ -32,6 +48,8 @@ export default function LoginForm() {
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Очищаем ошибку при изменении полей
+    if (error) setError('');
   };
 
   return (
@@ -87,6 +105,17 @@ export default function LoginForm() {
           </Tooltip>
         </div>
 
+        {/* Отображение ошибки */}
+        {error && (
+          <div className="p-4 rounded-lg border border-red-500/30 bg-red-500/10">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-red-400 text-sm font-medium">{error}</span>
+            </div>
+          </div>
+        )}
 
         <Button
           type="submit"
