@@ -22,25 +22,51 @@ export default function LoginForm() {
     setIsLoading(true);
     setError('');
     
-    // Тестовые данные для входа
-    const testCredentials = {
-      login: 'admin',
-      password: 'admin123'
-    };
-    
-    console.log('Login attempt:', formData);
-    
-    // Имитация запроса с проверкой тестовых данных
-    setTimeout(() => {
-      if (formData.login === testCredentials.login && formData.password === testCredentials.password) {
-        console.log('Login successful! Redirecting to Telegram verification...');
-        router.push('/verify-telegram');
+    try {
+      console.log('Login attempt:', formData);
+      
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          login: formData.login,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log('Login successful!', data.user);
+        
+        // Сохраняем информацию о пользователе в localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Проверяем, нужна ли верификация через Telegram
+        if (data.requiresVerification) {
+          // Код отправлен в Telegram, переходим на страницу верификации
+          console.log('Verification code sent to Telegram');
+          router.push('/verify-telegram');
+        } else if (data.requiresTelegramVerification) {
+          // У пользователя нет telegram_id, нужно привязать Telegram
+          console.log('User needs to link Telegram account');
+          router.push('/verify-telegram');
+        } else {
+          // Прямой переход на dashboard (если не требуется верификация)
+          router.push('/dashboard');
+        }
       } else {
-        console.log('Invalid credentials');
-        setError('Неверный логин или пароль');
+        console.log('Login failed:', data.error);
+        setError(data.error || 'Ошибка авторизации');
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Ошибка подключения к серверу');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

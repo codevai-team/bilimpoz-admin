@@ -6,11 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "create-test-user": "npx tsx src/scripts/create-test-user.ts",
+    "setup-telegram-bot": "npx tsx src/scripts/setup-telegram-bot.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.2",
     "next": "16.0.0",
+    "prisma": "^6.18.0",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
@@ -23,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
     "tailwindcss": "^4",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

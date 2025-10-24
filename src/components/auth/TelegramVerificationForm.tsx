@@ -77,30 +77,85 @@ export default function TelegramVerificationForm() {
     setIsLoading(true);
     setError('');
 
-    // Тестовый код для демонстрации
-    const testCode = '123456';
-    
-    console.log('Telegram verification attempt:', fullCode);
-    
-    // Имитация запроса
-    setTimeout(() => {
-      if (fullCode === testCode) {
+    try {
+      // Получаем данные пользователя из localStorage
+      const userData = localStorage.getItem('user');
+      if (!userData) {
+        setError('Данные пользователя не найдены. Войдите заново.');
+        router.push('/login');
+        return;
+      }
+
+      const user = JSON.parse(userData);
+      console.log('Telegram verification attempt:', fullCode);
+      
+      const response = await fetch('/api/auth/verify-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          code: fullCode,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         console.log('Telegram verification successful! Redirecting to dashboard...');
         router.push('/dashboard');
       } else {
-        setError('Неверный код. Попробуйте еще раз.');
+        console.log('Verification failed:', data.error);
+        setError(data.error || 'Неверный код. Попробуйте еще раз.');
         // Очищаем поля при ошибке
         setCode(['', '', '', '', '', '']);
         inputRefs.current[0]?.focus();
       }
+    } catch (error) {
+      console.error('Verification error:', error);
+      setError('Ошибка подключения к серверу');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
-  const handleResendCode = () => {
-    console.log('Resending Telegram code...');
-    setTimeLeft(20); // Сброс таймера
-    setError('');
+  const handleResendCode = async () => {
+    try {
+      // Получаем данные пользователя из localStorage
+      const userData = localStorage.getItem('user');
+      if (!userData) {
+        setError('Данные пользователя не найдены. Войдите заново.');
+        router.push('/login');
+        return;
+      }
+
+      const user = JSON.parse(userData);
+      console.log('Resending Telegram code...');
+      
+      const response = await fetch('/api/auth/resend-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setTimeLeft(20); // Сброс таймера
+        setError('');
+        console.log('Code resent successfully');
+      } else {
+        setError(data.error || 'Ошибка при повторной отправке кода');
+      }
+    } catch (error) {
+      console.error('Error resending code:', error);
+      setError('Ошибка подключения к серверу');
+    }
   };
 
   const handleBackToLogin = () => {
