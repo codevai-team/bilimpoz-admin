@@ -5,7 +5,7 @@ import { Icons } from '@/components/ui/Icons';
 export interface BreadcrumbItem {
   id: string;
   title: string;
-  type: 'course' | 'group' | 'lesson';
+  type: 'course' | 'group' | 'lesson' | 'courses' | 'create' | 'edit';
 }
 
 interface BreadcrumbsProps {

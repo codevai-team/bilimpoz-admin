@@ -5,6 +5,7 @@ import { Icons } from '@/components/ui/Icons';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
+import FileUpload from '@/components/ui/FileUpload';
 
 interface CourseData {
   name: string;
@@ -91,13 +92,14 @@ export default function EditCourseModal({ isOpen, onClose, onSubmit, course }: E
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              URL фото курса
+              Фото курса
             </label>
-            <Input
-              type="url"
-              value={formData.course_photo_url}
-              onChange={(e) => handleInputChange('course_photo_url', e.target.value)}
-              placeholder="https://example.com/image.jpg"
+            <FileUpload
+              onFileSelect={(url) => handleInputChange('course_photo_url', url)}
+              fileType="course-image"
+              accept="image/*"
+              maxSize={10 * 1024 * 1024} // 10MB
+              currentUrl={formData.course_photo_url}
             />
           </div>
 

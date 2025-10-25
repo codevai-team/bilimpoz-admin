@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useState } from 'react';
 import { Icons } from '@/components/ui/Icons';
 
 interface Course {
@@ -39,6 +40,7 @@ interface CourseCardProps {
 }
 
 export default function CourseCard({ course, onSelect, onDelete, onEdit, onViewInfo }: CourseCardProps) {
+  const [imageError, setImageError] = useState(false);
   const totalLessons = course.lesson_groups.reduce((acc, group) => acc + group.lessons.length, 0);
   
   const formatDate = (dateString: string) => {
@@ -83,13 +85,15 @@ export default function CourseCard({ course, onSelect, onDelete, onEdit, onViewI
         <div className="flex items-start gap-4 flex-1">
           {/* Фото курса или иконка */}
           <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
-            {course.course_photo_url ? (
+            {course.course_photo_url && !imageError ? (
               <Image
                 src={course.course_photo_url}
                 alt={course.name}
                 width={64}
                 height={64}
                 className="w-full h-full object-cover rounded-lg"
+                onError={() => setImageError(true)}
+                unoptimized={true}
               />
             ) : (
               <Icons.BookOpen className="h-8 w-8 text-gray-400" />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { apiRequest } from '@/lib/client-auth';
 import {
   DndContext,
@@ -22,10 +23,8 @@ import { Icons } from '@/components/ui/Icons';
 import Button from '@/components/ui/Button';
 import CreateCourseModal from '@/components/dashboard/CreateCourseModal';
 import CreateLessonGroupModal from '@/components/dashboard/CreateLessonGroupModal';
-import CreateLessonModal from '@/components/dashboard/CreateLessonModal';
 import EditCourseModal from '@/components/dashboard/EditCourseModal';
 import EditLessonGroupModal from '@/components/dashboard/EditLessonGroupModal';
-import EditLessonModal from '@/components/dashboard/EditLessonModal';
 import ViewInfoModal from '@/components/dashboard/ViewInfoModal';
 import Breadcrumbs, { BreadcrumbItem } from '@/components/dashboard/Breadcrumbs';
 import CourseCard from '@/components/dashboard/CourseCard';
@@ -62,6 +61,9 @@ interface Lesson {
 type ViewType = 'courses' | 'groups' | 'lessons';
 
 export default function CoursesPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [courses, setCourses] = useState<Course[]>([]);
   
   // Настройка сенсоров для drag and drop
@@ -73,19 +75,16 @@ export default function CoursesPage() {
   );
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
-  const [isCreateLessonModalOpen, setIsCreateLessonModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
   // Модальные окна редактирования
   const [isEditCourseModalOpen, setIsEditCourseModalOpen] = useState(false);
   const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
-  const [isEditLessonModalOpen, setIsEditLessonModalOpen] = useState(false);
   const [isViewInfoModalOpen, setIsViewInfoModalOpen] = useState(false);
   
   // Редактируемые элементы
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [editingGroup, setEditingGroup] = useState<LessonGroup | null>(null);
-  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [viewInfoData, setViewInfoData] = useState<{
     type: 'course' | 'group' | 'lesson';
     data: any;
@@ -102,6 +101,58 @@ export default function CoursesPage() {
   useEffect(() => {
     fetchCourses();
   }, []);
+
+  // Обработка URL параметров для навигации
+  useEffect(() => {
+    const courseId = searchParams.get('courseId');
+    const groupId = searchParams.get('groupId');
+    const view = searchParams.get('view') as ViewType;
+
+    if (courseId && courses.length > 0) {
+      const course = courses.find(c => c.id === courseId);
+      if (course) {
+        setSelectedCourse(course);
+        
+        if (groupId) {
+          const group = course.lesson_groups.find(g => g.id === groupId);
+          if (group) {
+            setSelectedGroup(group);
+            setCurrentView('lessons');
+            setBreadcrumbs([
+              { id: course.id, title: course.name, type: 'course' },
+              { id: group.id, title: group.title, type: 'group' }
+            ]);
+          }
+        } else if (view === 'groups') {
+          setCurrentView('groups');
+          setBreadcrumbs([{ id: course.id, title: course.name, type: 'course' }]);
+        }
+      }
+    } else if (!courseId) {
+      setCurrentView('courses');
+      setSelectedCourse(null);
+      setSelectedGroup(null);
+      setBreadcrumbs([]);
+    }
+  }, [searchParams, courses]);
+
+  // Обновляем selectedCourse когда courses изменяются
+  useEffect(() => {
+    if (selectedCourse && courses.length > 0) {
+      const updatedCourse = courses.find(c => c.id === selectedCourse.id);
+      if (updatedCourse) {
+        setSelectedCourse(updatedCourse);
+        
+        // Также обновляем selectedGroup если она выбрана
+        if (selectedGroup) {
+          const updatedGroup = updatedCourse.lesson_groups.find(g => g.id === selectedGroup.id);
+          if (updatedGroup) {
+            setSelectedGroup(updatedGroup);
+          }
+        }
+      }
+    }
+  }, [courses, selectedCourse?.id, selectedGroup?.id]);
 
   const fetchCourses = async () => {
     try {
@@ -120,41 +171,26 @@ export default function CoursesPage() {
 
   // Навигационные функции
   const navigateToCourse = (course: Course) => {
-    setSelectedCourse(course);
-    setSelectedGroup(null);
-    setCurrentView('groups');
-    setBreadcrumbs([{ id: course.id, title: course.name, type: 'course' }]);
+    router.push(`/dashboard/courses?courseId=${course.id}&view=groups`);
   };
 
   const navigateToGroup = (group: LessonGroup) => {
-    setSelectedGroup(group);
-    setCurrentView('lessons');
-    setBreadcrumbs(prev => [...prev, { id: group.id, title: group.title, type: 'group' }]);
+    if (selectedCourse) {
+      router.push(`/dashboard/courses?courseId=${selectedCourse.id}&groupId=${group.id}&view=lessons`);
+    }
   };
 
   const handleBreadcrumbNavigation = (item: BreadcrumbItem, index: number) => {
     if (index === -1) {
       // Возврат к курсам
-      setCurrentView('courses');
-      setSelectedCourse(null);
-      setSelectedGroup(null);
-      setBreadcrumbs([]);
+      router.push('/dashboard/courses');
     } else if (item.type === 'course') {
       // Переход к группам курса
-      const course = courses.find(c => c.id === item.id);
-      if (course) {
-        setSelectedCourse(course);
-        setSelectedGroup(null);
-        setCurrentView('groups');
-        setBreadcrumbs([{ id: course.id, title: course.name, type: 'course' }]);
-      }
+      router.push(`/dashboard/courses?courseId=${item.id}&view=groups`);
     } else if (item.type === 'group') {
       // Переход к урокам группы
-      const group = selectedCourse?.lesson_groups.find(g => g.id === item.id);
-      if (group) {
-        setSelectedGroup(group);
-        setCurrentView('lessons');
-        setBreadcrumbs(breadcrumbs.slice(0, index + 1));
+      if (selectedCourse) {
+        router.push(`/dashboard/courses?courseId=${selectedCourse.id}&groupId=${item.id}&view=lessons`);
       }
     }
   };
@@ -186,12 +222,8 @@ export default function CoursesPage() {
       });
 
       if (response.ok) {
+        // Сначала обновляем данные
         await fetchCourses();
-        // Обновляем выбранный курс
-        const updatedCourse = courses.find(c => c.id === selectedCourse.id);
-        if (updatedCourse) {
-          setSelectedCourse(updatedCourse);
-        }
         setIsCreateGroupModalOpen(false);
       }
     } catch (error) {
@@ -199,31 +231,9 @@ export default function CoursesPage() {
     }
   };
 
-  const handleCreateLesson = async (lessonData: any) => {
+  const handleCreateLesson = () => {
     if (!selectedCourse || !selectedGroup) return;
-    
-    try {
-      const response = await apiRequest(`/api/courses/${selectedCourse.id}/groups/${selectedGroup.id}/lessons`, {
-        method: 'POST',
-        body: JSON.stringify(lessonData),
-      });
-
-      if (response.ok) {
-        await fetchCourses();
-        // Обновляем выбранные курс и группу
-        const updatedCourse = courses.find(c => c.id === selectedCourse.id);
-        if (updatedCourse) {
-          setSelectedCourse(updatedCourse);
-          const updatedGroup = updatedCourse.lesson_groups.find(g => g.id === selectedGroup.id);
-          if (updatedGroup) {
-            setSelectedGroup(updatedGroup);
-          }
-        }
-        setIsCreateLessonModalOpen(false);
-      }
-    } catch (error) {
-      console.error('Ошибка создания урока:', error);
-    }
+    router.push(`/dashboard/courses/${selectedCourse.id}/groups/${selectedGroup.id}/lessons/create`);
   };
 
   const handleDeleteCourse = async (courseId: string) => {
@@ -311,8 +321,8 @@ export default function CoursesPage() {
   };
 
   const handleEditLesson = (lesson: Lesson) => {
-    setEditingLesson(lesson);
-    setIsEditLessonModalOpen(true);
+    if (!selectedCourse || !selectedGroup) return;
+    router.push(`/dashboard/courses/${selectedCourse.id}/groups/${selectedGroup.id}/lessons/${lesson.id}/edit`);
   };
 
   // Обработчики просмотра информации
@@ -384,24 +394,6 @@ export default function CoursesPage() {
     }
   };
 
-  const handleSaveEditLesson = async (lessonData: any) => {
-    if (!editingLesson || !selectedCourse || !selectedGroup) return;
-    
-    try {
-      const response = await apiRequest(`/api/courses/${selectedCourse.id}/groups/${selectedGroup.id}/lessons/${editingLesson.id}`, {
-        method: 'PUT',
-        body: JSON.stringify(lessonData),
-      });
-
-      if (response.ok) {
-        await fetchCourses();
-        setIsEditLessonModalOpen(false);
-        setEditingLesson(null);
-      }
-    } catch (error) {
-      console.error('Ошибка редактирования урока:', error);
-    }
-  };
 
   // Обработчик drag and drop для групп
   const handleGroupDragEnd = async (event: DragEndEvent) => {
@@ -590,7 +582,7 @@ export default function CoursesPage() {
         setIsCreateGroupModalOpen(true);
         break;
       case 'lessons':
-        setIsCreateLessonModalOpen(true);
+        handleCreateLesson();
         break;
     }
   };
@@ -707,7 +699,7 @@ export default function CoursesPage() {
                       <Icons.Play className="h-12 w-12 text-gray-600 mx-auto mb-4" />
                       <h3 className="text-lg font-medium text-gray-400 mb-2">Уроки не найдены</h3>
                       <p className="text-gray-500 mb-4">Создайте первый урок для этой группы</p>
-                      <Button onClick={() => setIsCreateLessonModalOpen(true)}>
+                      <Button onClick={handleCreateLesson}>
                         Создать урок
                       </Button>
                     </div>
@@ -764,15 +756,6 @@ export default function CoursesPage() {
           />
         )}
 
-        {selectedCourse && selectedGroup && (
-          <CreateLessonModal
-            isOpen={isCreateLessonModalOpen}
-            onClose={() => setIsCreateLessonModalOpen(false)}
-            onSubmit={handleCreateLesson}
-            courseId={selectedCourse.id}
-            groupId={selectedGroup.id}
-          />
-        )}
 
         {/* Модальные окна редактирования */}
         {editingCourse && (
@@ -800,17 +783,6 @@ export default function CoursesPage() {
           />
         )}
 
-        {editingLesson && (
-          <EditLessonModal
-            isOpen={isEditLessonModalOpen}
-            onClose={() => {
-              setIsEditLessonModalOpen(false);
-              setEditingLesson(null);
-            }}
-            onSubmit={handleSaveEditLesson}
-            lesson={editingLesson}
-          />
-        )}
 
         {/* Модальное окно просмотра информации */}
         <ViewInfoModal
