@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from './auth'
 
 export function middleware(request: NextRequest) {
   // Проверяем, если пользователь пытается получить доступ к защищенным маршрутам
@@ -7,23 +8,30 @@ export function middleware(request: NextRequest) {
 
   // Если это защищенный маршрут
   if (protectedPaths.some(path => pathname.startsWith(path))) {
-    // В реальном приложении здесь была бы проверка JWT токена
-    // Пока что просто пропускаем все запросы
-    return NextResponse.next()
+    // Проверяем наличие токена в cookies или localStorage (для клиентской стороны)
+    // Для серверной стороны токен должен передаваться через Authorization header
+    
+    // Для dashboard страниц проверяем токен из cookies
+    const token = request.cookies.get('auth-token')?.value
+    
+    if (!token) {
+      // Перенаправляем на страницу входа
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    // Проверяем валидность токена
+    const payload = verifyToken(token)
+    if (!payload) {
+      // Токен недействителен, перенаправляем на страницу входа
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    // Проверяем роль пользователя (только админы могут попасть в dashboard)
+    if (payload.role !== 'admin') {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
   }
 
   return NextResponse.next()
 }
 
-export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
-}

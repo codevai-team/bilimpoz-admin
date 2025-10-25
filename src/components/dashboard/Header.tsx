@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Icons } from '@/components/ui/Icons';
+import { useUser } from '@/hooks/useUser';
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -10,6 +11,7 @@ interface HeaderProps {
 
 export default function Header({ onMenuToggle, isMobileMenuOpen: _isMobileMenuOpen }: HeaderProps) {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const { user, loading, logout } = useUser();
 
   return (
     <header className="fixed top-4 left-4 right-4 lg:left-4 lg:right-4 bg-[#151515] rounded-2xl px-4 lg:px-6 h-16 flex items-center justify-between z-50 shadow-2xl">
@@ -57,35 +59,24 @@ export default function Header({ onMenuToggle, isMobileMenuOpen: _isMobileMenuOp
             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
             className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 transition-colors"
           >
-            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
               <Icons.User className="h-4 w-4 text-white" />
             </div>
-            <span className="hidden sm:block text-sm text-white">Админ</span>
+            <span className="hidden sm:block text-sm text-white">
+              {loading ? 'Загрузка...' : user?.name || 'Пользователь'}
+            </span>
             <Icons.ChevronDown className="h-4 w-4 text-gray-400" />
           </button>
 
           {/* Выпадающее меню профиля */}
           {isProfileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-[#151515] border border-gray-700 rounded-lg shadow-lg py-1 z-50">
-              <a
-                href="#"
-                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors"
-              >
-                Профиль
-              </a>
-              <a
-                href="#"
-                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors"
-              >
-                Настройки
-              </a>
-              <hr className="my-1 border-gray-700" />
-              <a
-                href="/login"
-                className="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700 transition-colors"
+            <div className="absolute right-0 mt-2 w-48 bg-[#151515] rounded-2xl shadow-2xl py-2 z-50">
+              <button
+                onClick={logout}
+                className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 rounded-lg mx-2 transition-colors"
               >
                 Выйти
-              </a>
+              </button>
             </div>
           )}
         </div>

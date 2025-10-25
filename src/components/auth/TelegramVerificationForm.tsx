@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
-import { TelegramIcon, ShieldCheckIcon, ArrowLeftIcon } from '@/components/ui/Icons';
+import { TelegramIcon, ArrowLeftIcon } from '@/components/ui/Icons';
 
 export default function TelegramVerificationForm() {
   const router = useRouter();
@@ -104,6 +104,17 @@ export default function TelegramVerificationForm() {
 
       if (response.ok && data.success) {
         console.log('Telegram verification successful! Redirecting to dashboard...');
+        
+        // Сохраняем JWT токен в cookies
+        if (data.token) {
+          document.cookie = `auth-token=${data.token}; path=/; max-age=${24 * 60 * 60}; secure; samesite=strict`;
+        }
+        
+        // Сохраняем актуальные данные пользователя в localStorage
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+        
         router.push('/dashboard');
       } else {
         console.log('Verification failed:', data.error);

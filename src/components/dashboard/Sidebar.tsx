@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Icons } from '@/components/ui/Icons';
+import { useUser } from '@/hooks/useUser';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -49,6 +50,7 @@ const menuItems = [
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user, loading, logout } = useUser();
 
   return (
     <>
@@ -115,21 +117,25 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <div className="bg-gray-800 rounded-lg p-3">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
                 <Icons.User className="h-4 w-4 text-white" />
               </div>
               <div>
-                <p className="text-sm font-medium text-white">Админ</p>
-                <p className="text-xs text-gray-400">admin@bilimpoz.com</p>
+                <p className="text-sm font-medium text-white">
+                  {loading ? 'Загрузка...' : user?.name || 'Пользователь'}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {loading ? '...' : user?.role || 'admin'}
+                </p>
               </div>
             </div>
-            <Link
-              href="/login"
+            <button
+              onClick={logout}
               className="flex items-center gap-2 text-xs text-red-400 hover:text-red-300 transition-colors"
             >
               <Icons.LogOut className="h-3 w-3" />
               Выйти
-            </Link>
+            </button>
           </div>
         </div>
       </aside>

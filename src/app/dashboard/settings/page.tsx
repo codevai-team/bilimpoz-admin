@@ -87,11 +87,14 @@ export default function SettingsPage() {
                   <label className="block text-sm font-medium text-gray-400 mb-2">
                     Часовой пояс
                   </label>
-                  <select className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/20">
-                    <option>UTC+3 (Москва)</option>
-                    <option>UTC+0 (GMT)</option>
-                    <option>UTC-5 (EST)</option>
-                    <option>UTC-8 (PST)</option>
+                  <select 
+                    defaultValue="UTC+3 (Москва)"
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+                  >
+                    <option value="UTC+3 (Москва)">UTC+3 (Москва)</option>
+                    <option value="UTC+0 (GMT)">UTC+0 (GMT)</option>
+                    <option value="UTC-5 (EST)">UTC-5 (EST)</option>
+                    <option value="UTC-8 (PST)">UTC-8 (PST)</option>
                   </select>
                 </div>
               </div>
@@ -168,10 +171,13 @@ export default function SettingsPage() {
                   <label className="block text-sm font-medium text-gray-400 mb-2">
                     Количество попыток
                   </label>
-                  <select className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/20">
+                  <select 
+                    defaultValue="3"
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+                  >
                     <option value="1">1 попытка</option>
                     <option value="2">2 попытки</option>
-                    <option value="3" selected>3 попытки</option>
+                    <option value="3">3 попытки</option>
                     <option value="unlimited">Неограниченно</option>
                   </select>
                 </div>

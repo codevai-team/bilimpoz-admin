@@ -1,7 +1,12 @@
+'use client';
+
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Icons } from '@/components/ui/Icons';
+import { useUser } from '@/hooks/useUser';
 
 export default function DashboardPage() {
+  const { user, loading } = useUser();
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -24,7 +29,7 @@ export default function DashboardPage() {
             </div>
             <h3 className="text-sm font-medium text-gray-400 mb-1">Пользователи</h3>
             <p className="text-2xl font-bold text-white">1,234</p>
-            <p className="text-xs text-gray-500 mt-1">за последний месяц</p>
+            <p className="text-xs text-gray-500 mt-1">всего зарегистрировано</p>
           </div>
           
           <div className="bg-[#151515] rounded-2xl p-6">
@@ -100,8 +105,10 @@ export default function DashboardPage() {
                   <Icons.User className="h-4 w-4 text-white" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-white">Новый пользователь зарегистрировался</p>
-                  <p className="text-xs text-gray-400">2 минуты назад</p>
+                  <p className="text-sm text-white">
+                    Администратор {user?.name || 'Админ'} вошел в систему
+                  </p>
+                  <p className="text-xs text-gray-400">Сейчас</p>
                 </div>
               </div>
               
