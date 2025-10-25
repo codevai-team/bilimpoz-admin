@@ -51,8 +51,8 @@ export default function EditCourseModal({ isOpen, onClose, onSubmit, course }: E
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#151515] rounded-2xl w-full max-w-md">
-        <div className="flex items-center justify-between p-6">
+      <div className="bg-[#151515] rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between p-6 flex-shrink-0">
           <h2 className="text-xl font-semibold text-white">Редактировать курс</h2>
           <button
             onClick={onClose}
@@ -62,7 +62,8 @@ export default function EditCourseModal({ isOpen, onClose, onSubmit, course }: E
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6 modal-scroll">
+          <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Название курса *
@@ -117,23 +118,24 @@ export default function EditCourseModal({ isOpen, onClose, onSubmit, course }: E
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1"
-            >
-              Отмена
-            </Button>
-            <Button
-              type="submit"
-              className="flex-1"
-            >
-              Сохранить
-            </Button>
-          </div>
-        </form>
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="flex-1"
+              >
+                Отмена
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1"
+              >
+                Сохранить
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

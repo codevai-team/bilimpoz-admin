@@ -29,9 +29,14 @@ interface SortableLessonCardProps {
   onDelete: (lessonId: string) => void;
   onEdit?: (lesson: Lesson) => void;
   onViewInfo?: (lesson: Lesson) => void;
+  onConfirmDelete?: (options: {
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }) => void;
 }
 
-export default function SortableLessonCard({ lesson, groupColor, onSelect, onDelete, onEdit, onViewInfo }: SortableLessonCardProps) {
+export default function SortableLessonCard({ lesson, groupColor, onSelect, onDelete, onEdit, onViewInfo, onConfirmDelete }: SortableLessonCardProps) {
   const {
     attributes,
     listeners,
@@ -56,6 +61,7 @@ export default function SortableLessonCard({ lesson, groupColor, onSelect, onDel
         onDelete={onDelete}
         onEdit={onEdit}
         onViewInfo={onViewInfo}
+        onConfirmDelete={onConfirmDelete}
         dragHandleProps={listeners}
         isDragging={isDragging}
       />

@@ -94,9 +94,9 @@ export default function CreateCourseModal({ isOpen, onClose, onSubmit }: CreateC
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-[#151515] rounded-2xl w-full max-w-md">
+      <div className="bg-[#151515] rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col">
         {/* Заголовок модального окна */}
-        <div className="flex items-center justify-between p-6">
+        <div className="flex items-center justify-between p-6 flex-shrink-0">
           <h2 className="text-xl font-semibold text-white">Создать курс</h2>
           <button
             onClick={handleClose}
@@ -107,8 +107,9 @@ export default function CreateCourseModal({ isOpen, onClose, onSubmit }: CreateC
           </button>
         </div>
 
-        {/* Форма */}
-        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
+        {/* Форма с внутренним скроллом */}
+        <div className="flex-1 overflow-y-auto px-6 pb-6 modal-scroll">
+          <form onSubmit={handleSubmit} className="space-y-4">
           {/* Название курса */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -181,27 +182,28 @@ export default function CreateCourseModal({ isOpen, onClose, onSubmit }: CreateC
             />
           </div>
 
-          {/* Кнопки */}
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isSubmitting}
-              className="flex-1"
-            >
-              Отмена
-            </Button>
-            <Button
-              type="submit"
-              isLoading={isSubmitting}
-              disabled={isSubmitting}
-              className="flex-1"
-            >
-              {isSubmitting ? 'Создание...' : 'Создать курс'}
-            </Button>
-          </div>
-        </form>
+            {/* Кнопки */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={isSubmitting}
+                className="flex-1"
+              >
+                Отмена
+              </Button>
+              <Button
+                type="submit"
+                isLoading={isSubmitting}
+                disabled={isSubmitting}
+                className="flex-1"
+              >
+                {isSubmitting ? 'Создание...' : 'Создать курс'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

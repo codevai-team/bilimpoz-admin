@@ -37,9 +37,14 @@ interface CourseCardProps {
   onDelete: (courseId: string) => void;
   onEdit?: (course: Course) => void;
   onViewInfo?: (course: Course) => void;
+  onConfirmDelete?: (options: {
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }) => void;
 }
 
-export default function CourseCard({ course, onSelect, onDelete, onEdit, onViewInfo }: CourseCardProps) {
+export default function CourseCard({ course, onSelect, onDelete, onEdit, onViewInfo, onConfirmDelete }: CourseCardProps) {
   const [imageError, setImageError] = useState(false);
   const totalLessons = course.lesson_groups.reduce((acc, group) => acc + group.lessons.length, 0);
   
@@ -57,8 +62,17 @@ export default function CourseCard({ course, onSelect, onDelete, onEdit, onViewI
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('Вы уверены, что хотите удалить этот курс? Это действие нельзя отменить.')) {
-      onDelete(course.id);
+    if (onConfirmDelete) {
+      onConfirmDelete({
+        title: 'Удалить курс',
+        message: `Вы уверены, что хотите удалить курс "${course.name}"? Это действие нельзя отменить. Все группы уроков и уроки в этом курсе также будут удалены.`,
+        onConfirm: () => onDelete(course.id)
+      });
+    } else {
+      // Fallback к стандартному confirm если onConfirmDelete не передан
+      if (confirm('Вы уверены, что хотите удалить этот курс? Это действие нельзя отменить.')) {
+        onDelete(course.id);
+      }
     }
   };
 

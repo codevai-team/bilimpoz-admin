@@ -326,6 +326,19 @@ export default function EditLessonPage() {
                 <label className="block text-sm font-medium text-gray-300 mb-3">
                   Видео урока *
                 </label>
+                
+                {/* Превью видео */}
+                {formData.video_url && (
+                  <div className="mb-4">
+                    <VideoPlayer
+                      src={formData.video_url}
+                      className="w-full max-w-2xl"
+                      height="300px"
+                      controls={true}
+                    />
+                  </div>
+                )}
+                
                 <FileUpload
                   onFileSelect={(url) => handleInputChange('video_url', url)}
                   fileType="lesson-video"
@@ -337,18 +350,6 @@ export default function EditLessonPage() {
                 />
                 {errors.video_url && (
                   <p className="text-red-400 text-sm mt-2">{errors.video_url}</p>
-                )}
-                
-                {/* Превью видео */}
-                {formData.video_url && (
-                  <div className="mt-4">
-                    <VideoPlayer
-                      src={formData.video_url}
-                      className="w-full max-w-2xl"
-                      height="300px"
-                      controls={true}
-                    />
-                  </div>
                 )}
               </div>
 

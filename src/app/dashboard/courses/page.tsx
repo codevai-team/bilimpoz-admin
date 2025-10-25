@@ -30,6 +30,8 @@ import Breadcrumbs, { BreadcrumbItem } from '@/components/dashboard/Breadcrumbs'
 import CourseCard from '@/components/dashboard/CourseCard';
 import SortableGroupCard from '@/components/dashboard/SortableGroupCard';
 import SortableLessonCard from '@/components/dashboard/SortableLessonCard';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 interface Course {
   id: string;
@@ -97,6 +99,9 @@ export default function CoursesPage() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<LessonGroup | null>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([]);
+  
+  // Кастомный диалог подтверждения
+  const { dialogState, openDialog, closeDialog, handleConfirm } = useConfirmDialog();
 
   useEffect(() => {
     fetchCourses();
@@ -642,6 +647,7 @@ export default function CoursesPage() {
                           onDelete={handleDeleteCourse}
                           onEdit={handleEditCourse}
                           onViewInfo={handleViewCourseInfo}
+                          onConfirmDelete={openDialog}
                         />
                       ))}
                     </div>
@@ -682,6 +688,7 @@ export default function CoursesPage() {
                                 onDelete={handleDeleteGroup}
                                 onEdit={handleEditGroup}
                                 onViewInfo={handleViewGroupInfo}
+                                onConfirmDelete={openDialog}
                               />
                             ))}
                         </div>
@@ -728,6 +735,7 @@ export default function CoursesPage() {
                                 onDelete={handleDeleteLesson}
                                 onEdit={handleEditLesson}
                                 onViewInfo={handleViewLessonInfo}
+                                onConfirmDelete={openDialog}
                               />
                             ))}
                         </div>
@@ -795,6 +803,19 @@ export default function CoursesPage() {
           data={viewInfoData?.data}
           course={viewInfoData?.course}
           group={viewInfoData?.group}
+        />
+
+        {/* Кастомный диалог подтверждения */}
+        <ConfirmDialog
+          isOpen={dialogState.isOpen}
+          onClose={closeDialog}
+          onConfirm={handleConfirm}
+          title={dialogState.title}
+          message={dialogState.message}
+          confirmText={dialogState.confirmText}
+          cancelText={dialogState.cancelText}
+          variant={dialogState.variant}
+          isLoading={dialogState.isLoading}
         />
       </div>
     </DashboardLayout>

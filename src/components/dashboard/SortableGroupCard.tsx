@@ -22,9 +22,14 @@ interface SortableGroupCardProps {
   onDelete: (groupId: string) => void;
   onEdit?: (group: LessonGroup) => void;
   onViewInfo?: (group: LessonGroup) => void;
+  onConfirmDelete?: (options: {
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }) => void;
 }
 
-export default function SortableGroupCard({ group, onSelect, onDelete, onEdit, onViewInfo }: SortableGroupCardProps) {
+export default function SortableGroupCard({ group, onSelect, onDelete, onEdit, onViewInfo, onConfirmDelete }: SortableGroupCardProps) {
   const {
     attributes,
     listeners,
@@ -48,6 +53,7 @@ export default function SortableGroupCard({ group, onSelect, onDelete, onEdit, o
         onDelete={onDelete}
         onEdit={onEdit}
         onViewInfo={onViewInfo}
+        onConfirmDelete={onConfirmDelete}
         dragHandleProps={listeners}
         isDragging={isDragging}
       />

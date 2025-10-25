@@ -24,15 +24,29 @@ interface GroupCardProps {
   onDelete: (groupId: string) => void;
   onEdit?: (group: LessonGroup) => void;
   onViewInfo?: (group: LessonGroup) => void;
+  onConfirmDelete?: (options: {
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }) => void;
   dragHandleProps?: any;
   isDragging?: boolean;
 }
 
-export default function GroupCard({ group, onSelect, onDelete, onEdit, onViewInfo, dragHandleProps, isDragging: _isDragging }: GroupCardProps) {
+export default function GroupCard({ group, onSelect, onDelete, onEdit, onViewInfo, onConfirmDelete, dragHandleProps, isDragging: _isDragging }: GroupCardProps) {
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('Вы уверены, что хотите удалить эту группу? Все уроки в ней также будут удалены.')) {
-      onDelete(group.id);
+    if (onConfirmDelete) {
+      onConfirmDelete({
+        title: 'Удалить группу уроков',
+        message: `Вы уверены, что хотите удалить группу "${group.title}"? Все уроки в ней также будут удалены. Это действие нельзя отменить.`,
+        onConfirm: () => onDelete(group.id)
+      });
+    } else {
+      // Fallback к стандартному confirm если onConfirmDelete не передан
+      if (confirm('Вы уверены, что хотите удалить эту группу? Все уроки в ней также будут удалены.')) {
+        onDelete(group.id);
+      }
     }
   };
 

@@ -17,15 +17,29 @@ interface LessonCardProps {
   onDelete: (lessonId: string) => void;
   onEdit?: (lesson: Lesson) => void;
   onViewInfo?: (lesson: Lesson) => void;
+  onConfirmDelete?: (options: {
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }) => void;
   dragHandleProps?: any;
   isDragging?: boolean;
 }
 
-export default function LessonCard({ lesson, groupColor, onSelect, onDelete, onEdit, onViewInfo, dragHandleProps, isDragging: _isDragging }: LessonCardProps) {
+export default function LessonCard({ lesson, groupColor, onSelect, onDelete, onEdit, onViewInfo, onConfirmDelete, dragHandleProps, isDragging: _isDragging }: LessonCardProps) {
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('Вы уверены, что хотите удалить этот урок?')) {
-      onDelete(lesson.id);
+    if (onConfirmDelete) {
+      onConfirmDelete({
+        title: 'Удалить урок',
+        message: `Вы уверены, что хотите удалить урок "${lesson.title}"? Это действие нельзя отменить.`,
+        onConfirm: () => onDelete(lesson.id)
+      });
+    } else {
+      // Fallback к стандартному confirm если onConfirmDelete не передан
+      if (confirm('Вы уверены, что хотите удалить этот урок?')) {
+        onDelete(lesson.id);
+      }
     }
   };
 
