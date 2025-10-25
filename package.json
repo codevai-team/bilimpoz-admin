@@ -9,7 +9,6 @@
     "lint": "eslint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "create-test-user": "npx tsx src/scripts/create-test-user.ts",
     "setup-telegram-bot": "npx tsx src/scripts/setup-telegram-bot.ts"
   },
   "dependencies": {
